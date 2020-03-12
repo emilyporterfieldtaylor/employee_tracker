@@ -37,7 +37,7 @@ inquirer.prompt([
     choices: [
       "View By",
       "Add By",
-      "Update By",
+      "Update Employee Roles",
       "Delete By",
       "Exit"
     ]
@@ -69,19 +69,6 @@ inquirer.prompt([
     }
   },{
     type: "list",
-    name: "tableUpdate",
-    message: "Which table would you like to update?",
-    choices: [
-      "Department",
-      "Roles",
-      "Employee",
-      "Back"
-    ],
-    when: function( answers ) {
-      return answers.action === "Update By";
-    }
-  },{
-    type: "list",
     name: "tableDelete",
     message: "Which table would you like to delete from?",
     choices: [
@@ -93,28 +80,55 @@ inquirer.prompt([
     when: function( answers ) {
       return answers.action === "Delete By";
     }
-  },{
-    when: function( answers ) {
-      return answers.action === "Delete By";
-    }
   }
 ])
 .then(answer => {
-  switch (answer.tableView) {
+  switch (answer.action) {
+    case "Update Employee Roles":
+      updateEmployeePrompt();
     case "Exit":
-    connection.end();
+      connection.end();
   }
   switch (answer.tableView) {
     case "Department":
-      console.log("you made it to view departments");
+      viewDepartment();
       break;
-    case "Department":
-      console.log("you made it to view departments");
+    case "Roles":
+      viewRoles();
       break; 
+    case "Employee":
+      viewEmployee();
+      break; 
+    case "Back":
+      start();
+      break;
   }
   switch (answer.tableAdd) {
     case "Department":
-      console.log("you made it to add departments");
+      addDepartment();
+      break;
+    case "Roles":
+      addRoles();
+      break;
+    case "Employee":
+      addEmployee();
+      break; 
+    case "Back":
+      start();
+      break;
+  }  
+  switch (answer.tableDelete) {
+    case "Department":
+      deleteDepartment();
+      break;
+    case "Roles":
+      deleteRoles();
+      break;
+    case "Employee":
+      deleteEmployee();
+      break; 
+    case "Back":
+      start();
       break;
   }
 });
