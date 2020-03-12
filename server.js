@@ -24,8 +24,11 @@ connection.connect(function(err) {
     return;
   }
 
+  start();
+
 });
 
+function start () {
 inquirer.prompt([
   {
     type: "list",
@@ -49,29 +52,74 @@ inquirer.prompt([
       "Back"
     ],
     when: function( answers ) {
-      // Only run if user set a name
       return answers.action === "View By";
     }
-  },
+  },{
+    type: "list",
+    name: "tableAdd",
+    message: "Which table would you like to add to?",
+    choices: [
+      "Department",
+      "Roles",
+      "Employee",
+      "Back"
+    ],
+    when: function( answers ) {
+      return answers.action === "Add By";
+    }
+  },{
+    type: "list",
+    name: "tableUpdate",
+    message: "Which table would you like to update?",
+    choices: [
+      "Department",
+      "Roles",
+      "Employee",
+      "Back"
+    ],
+    when: function( answers ) {
+      return answers.action === "Update By";
+    }
+  },{
+    type: "list",
+    name: "tableDelete",
+    message: "Which table would you like to delete from?",
+    choices: [
+      "Department",
+      "Roles",
+      "Employee",
+      "Back"
+    ],
+    when: function( answers ) {
+      return answers.action === "Delete By";
+    }
+  },{
+    when: function( answers ) {
+      return answers.action === "Delete By";
+    }
+  }
 ])
 .then(answer => {
-  switch (answer.action) {
-    case "View By":
-      view();
-      break;
-    case "Add By":
-      add();
-      break;
-    case "Update By":
-      update();
-      break;
-    case "Delete By":
-      remove();
-      break;
+  switch (answer.tableView) {
     case "Exit":
-      connection.end();
+    connection.end();
+  }
+  switch (answer.tableView) {
+    case "Department":
+      console.log("you made it to view departments");
+      break;
+    case "Department":
+      console.log("you made it to view departments");
+      break; 
+  }
+  switch (answer.tableAdd) {
+    case "Department":
+      console.log("you made it to add departments");
+      break;
   }
 });
+
+}
 
 
 
