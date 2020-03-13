@@ -1,6 +1,8 @@
 const express = require("express");
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+require('dotenv').config();
+require("console.table");
 
 let app = express();
 
@@ -14,7 +16,7 @@ const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
-  password: "process.env.DB_PASS",
+  password: process.env.DB_PASS,
   database: "employee_tracker"
 });
 
@@ -23,9 +25,7 @@ connection.connect(function(err) {
     console.error("error connecting: " + err.stack);
     return;
   }
-
-  start();
-
+  viewAllEmployees();
 });
 
 function start () {
@@ -136,8 +136,48 @@ inquirer.prompt([
 }
 
 //View Departments
+function viewAllEmployees() {
+  connection.query(
+    //employee2 = alias for employee, allows the manager_id to be filled in with the manager name
+    'SELECT employee.id, employee.First_Name, employee.Last_Name, role.title, department.name department, role.salary,' +
+    'concat(employee2.First_Name, " ", employee2.Last_Name) manager ' +
+    'FROM employee ' +
+    'left join employee employee2 on employee.Manager_Id = employee2.id ' +
+    'left join role on employee.Role_Id = role.id ' +
+    'left join department on role.Department_Id = department.id Order By employee.id;',
+    function (err, answer) {
+        if (err) throw err;
+        console.table(answer); //formatting the look of data in terminal
+        start();
+    }
+);
+}
+
 function viewDepartment() {
-  
+  connection.query ("select * from employee;",
+  function (err, answer) {
+    if (err) throw err;
+    console.table(answer);
+    start();
+  });
+}
+
+function viewRoles() {
+  connection.query ("select * from role;",
+  function (err, answer) {
+    if (err) throw err;
+    console.table(answer);
+    start();
+  });
+}
+
+function viewEmployee() {
+  connection.query ("select * from employee;",
+  function (err, answer) {
+    if (err) throw err;
+    console.table(answer);
+    start();
+  });
 }
 
 app.listen(PORT, function() {
