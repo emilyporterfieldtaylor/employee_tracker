@@ -14,7 +14,7 @@ const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
-  password: "Cal&Sof20!",
+  password: "process.env.DB_PASS",
   database: "employee_tracker"
 });
 
@@ -135,9 +135,11 @@ inquirer.prompt([
 
 }
 
-
+//View Departments
+function viewDepartment() {
+  
+}
 
 app.listen(PORT, function() {
-  // Log (server-side) when our server has started
   console.log("Server listening on: http://localhost:" + PORT);
 });
