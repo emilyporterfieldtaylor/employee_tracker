@@ -88,6 +88,7 @@ inquirer.prompt([
       updateEmployeePrompt();
     case "Exit":
       connection.end();
+      return;
   }
   switch (answer.tableView) {
     case "Department":
@@ -135,10 +136,9 @@ inquirer.prompt([
 
 }
 
-//View Departments
+//View Functions
 function viewAllEmployees() {
   connection.query(
-    //employee2 = alias for employee, allows the manager_id to be filled in with the manager name
     'SELECT employee.id, employee.First_Name, employee.Last_Name, role.title, department.name department, role.salary,' +
     'concat(employee2.First_Name, " ", employee2.Last_Name) manager ' +
     'FROM employee ' +
@@ -154,7 +154,7 @@ function viewAllEmployees() {
 }
 
 function viewDepartment() {
-  connection.query ("select * from employee;",
+  connection.query ("select * from department;",
   function (err, answer) {
     if (err) throw err;
     console.table(answer);
@@ -179,6 +179,122 @@ function viewEmployee() {
     start();
   });
 }
+
+//Add functions
+
+function addDepartment() {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "departmentAdd",
+      message: "Which department would you like to add?",
+    }
+  ])
+  .then(answer => {
+    let query = connection.query(
+      `insert into department (name) value ('${answer.departmentAdd}')`,
+      function(err, res) {
+        if (err) throw err;
+        console.log(res.affectedRows = `${answer.departmentAdd} has been added as a department!\n`);
+        start();
+      });
+  }
+  )};
+
+//Currently not working addRoles  
+
+function addRoles() {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "titleAdd",
+      message: "Which title would you like to add?",
+    },{
+      type: "input",
+      name: "salaryAdd",
+      message: "What is the salary for the title?",
+    },{
+      type: "input",
+      name: "department_idAdd",
+      message: "Which department_id would you like to add this title to?"
+    }
+  ])
+  .then(answer => {
+    connection.query(
+      `insert into role (title, salary, department_id) value ('${answer.titleAdd}, ${answer.salaryAdd}, ${answer.department_idAdd}')`,
+      function(err, res) {
+        if (err) throw err;
+        console.log(res.affectedRows = `${answer.titleAdd} has been added as a role!\n`);
+        start();
+      });
+  }
+  )};
+
+function addEmployee() {
+connection.query(
+  "SELECT employee.first_name, employee.last_name, role.id, role.title, employee.manager_id " +
+  "FROM employee " +
+  "left join role on employee.id = role.id", function(err, res) {
+  if (err) throw err;
+
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'first_nameAdd',
+      message: 'What is first name of the employee you would like to add?'
+    },{
+      type: 'input',
+      name: 'last_nameAdd',
+      message: 'What is last name of the employee you would like to add?'
+    },{
+      type: 'rawlist',
+      name: 'role_idAdd',
+      choices: function() {
+        let roleArray = [];
+        for (let i = 0; i < res.length; i++) {
+          if (res[i].title != null) {
+            roleArray.push(res[i].title);
+          }
+        }
+        return roleArray;
+      },
+      message: 'What is role id of the employee you would like to add?'
+    },{
+      type: 'rawlist',
+      name: 'addManagerId',
+      choices: function() {
+        let managerArray = [];
+        for (let i = 0; i < res.length; i++) {
+          if (res[i].manager_id != null) {
+            managerArray.push(res[i].manager_id);
+          }
+        }
+        return managerArray;
+      },
+      message: 'Who is manager of the employee you would like to add?'
+    }
+  ]).then(function(answer) {
+    let query = connection.query(
+      `INSERT INTO employee (first_name, last_name, role_id, manager_id) value ('${answer.first_nameAdd}','${answer.last_nameAdd}', ${answer.role_idAdd}, ${answer.addManagerId})`,
+      function(err, res) {
+        if (err){ throw err;}
+        console.log(res.affectedRows = `${answer.first_nameAdd},${answer.last_nameAdd},${answer.addManagerId} inserted!\n`);
+      });
+
+    let query2 = connection.query(
+      `INSERT INTO employeerole (title) value ('${answer.AddRoleId}')`,
+      function(err, res) {
+        if (err){ throw err;}
+        console.log(res.affectedRows = `${answer.role_idAdd}, ${answer.salary} inserted!\n`);
+      });
+    
+      console.log(query.sql);  
+      console.log(query2.sql);  
+
+      start();
+    })
+  })  
+};
 
 app.listen(PORT, function() {
   console.log("Server listening on: http://localhost:" + PORT);
